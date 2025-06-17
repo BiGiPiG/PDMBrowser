@@ -61,7 +61,7 @@ class CompasService:
     def get_property(self, part, prop_name):
         try:
             ipk = self.kompas_api7_module.IPropertyKeeper(part)
-            prop = self.property_manager.GetProperty(self.kompas_api7_module.IPart7(part).FileName, prop_name)
+            prop = self.property_manager.GetProperty(part.FileName, prop_name)
 
             val = None
             from_source = True
@@ -93,7 +93,7 @@ class CompasService:
 
                 if is_assembly:
                     for i in range(part.Parts.Count):
-                        child_part = part.Parts.Item(i)
+                        child_part = part.Parts.Part(i)
                         self.walk_parts(child_part, level + 1)
 
         except Exception as e:
