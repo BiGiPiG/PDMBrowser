@@ -178,6 +178,10 @@ class UiMainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         ui_main_window.setWindowTitle(_translate("PDMBrowser", "PDMBrowser"))
         self.edit_btn.setToolTip(_translate("PDMBrowser", "Взять на редактирование"))
+        self.reg_btn.setToolTip(_translate("PDMBrowser", "Зарегистрировать документ"))
+        self.save_btn.setToolTip(_translate("PDMBrowser", "Сохранить документ"))
+        self.update_btn.setToolTip(_translate("PDMBrowser", "Обновить документ"))
+        self.check_btn.setToolTip(_translate("PDMBrowser", "Завершить редактирование"))
 
     def generate_line(self, row, level):
         symbol = ""
