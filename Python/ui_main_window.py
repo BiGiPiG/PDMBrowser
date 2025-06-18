@@ -1,5 +1,6 @@
 from PySide6 import QtCore, QtGui, QtWidgets
 from compas_service import CompasService
+from pdm_browser_client import PDMClient
 
 
 class UiMainWindow(object):
@@ -14,6 +15,7 @@ class UiMainWindow(object):
         self.check_btn = None
         self.edit_btn = None
         self.compas_service = CompasService()
+        self.pdm_client = PDMClient()
 
     def setup_ui(self, ui_main_window):
         ui_main_window.setObjectName("PDMBrowser")
@@ -170,6 +172,10 @@ class UiMainWindow(object):
                 cell_widget = self.table_widget.cellWidget(row, 0)
                 if cell_widget is not None:
                     cell_widget.setStyleSheet("background-color: #fa8282;")
+            else:
+                cell_widget = self.table_widget.cellWidget(row, 0)
+                if self.pdm_client.is_editing(object_id) == 1:
+                    cell_widget.setStyleSheet("background-color: #0fffa7;")
 
         # Добавление таблицы в макет
         self.vertical_layout.addWidget(self.table_widget)

@@ -14,9 +14,15 @@ class MainWindow(QMainWindow):
 
         self.ui.reg_btn.clicked.connect(registration)
         self.ui.save_btn.clicked.connect(save)
-        self.ui.update_btn.clicked.connect(update_table)
+        self.ui.update_btn.clicked.connect(self.update_table)
         self.ui.check_btn.clicked.connect(check_file)
         self.ui.edit_btn.clicked.connect(edit_file)
+
+    def update_table(self):
+        print("update table")
+        self.ui.table_widget.setParent(None)
+        self.ui.table_widget.deleteLater()
+        self.ui.setup_table()
 
 
 def registration():
@@ -24,9 +30,6 @@ def registration():
 
 def save():
     print("add new file to data base")
-
-def update_table():
-    print("update table")
 
 def check_file():
     print("check file")
