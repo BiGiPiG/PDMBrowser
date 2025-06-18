@@ -78,7 +78,6 @@ venv.bak/
 *.swo
 
 # Игнорировать журналы и логи
-*.log
 *.tlog
 *.lst
 
@@ -98,3 +97,5 @@ htmlcov/
 *.cert
 *.pem
 credentials.json
+
+target/
