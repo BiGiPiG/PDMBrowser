@@ -5,7 +5,7 @@ public class IPDMBrowserEntryPoint {
     private final IPDMBrowser browser;
 
     public IPDMBrowserEntryPoint() {
-        browser = new IPDMBrowser();
+        browser = new PDMBrowser();
     }
 
     public IPDMBrowser getBrowser() {
