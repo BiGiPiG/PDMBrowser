@@ -1,6 +1,6 @@
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow
-from ui_main_window import UiMainWindow  # Импорт сгенерированного класса
+from ui_main_window import UiMainWindow
 import resources
 
 

@@ -1,6 +1,6 @@
 from PySide6 import QtCore, QtGui, QtWidgets
 from compas_service import CompasService
-from pdm_browser_client import PDMClient
+from browser_client import BrowserClient
 
 
 class UiMainWindow(object):
@@ -15,7 +15,7 @@ class UiMainWindow(object):
         self.check_btn = None
         self.edit_btn = None
         self.compas_service = CompasService()
-        self.pdm_client = PDMClient()
+        self.pdm_client = BrowserClient()
 
     def setup_ui(self, ui_main_window):
         ui_main_window.setObjectName("PDMBrowser")

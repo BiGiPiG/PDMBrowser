@@ -101,6 +101,8 @@ class CompasService:
 
     def fill_properties(self):
         try:
+            self.properties.clear()
+            self.parts_dict.clear()
             self.connect()
 
             print("Чтение данных из сборки...")
