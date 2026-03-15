@@ -4,11 +4,10 @@ class BrowserClient:
     def __init__(self):
         self.gateway = JavaGateway()
         print(dir(self.gateway.entry_point))
-        self.browser = self.gateway.entry_point.getBrowser()
+        self.browser = self.gateway.entry_point
 
 
     def is_editing(self, object_id):
-        return self.browser.getSessionKeeper().session.getObject(object_id)
-        .getAttributeCollection().
+        return self.browser.getSessionKeeper().session.getObject(object_id).getAttributeCollection()
 
 
