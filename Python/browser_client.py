@@ -8,6 +8,6 @@ class BrowserClient:
 
 
     def is_editing(self, object_id):
-        return self.browser.getSessionKeeper().session.getObject(object_id).getAttributeCollection()
+        return self.browser.getSessionKeeper().getSession().getObject(object_id).getAttributeCollection()
 
 
