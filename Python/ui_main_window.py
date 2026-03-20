@@ -31,7 +31,7 @@ class UiMainWindow(object):
         self.vertical_layout = QtWidgets.QVBoxLayout(self.central_widget)
         self.vertical_layout.setObjectName("vertical_layout")
 
-        # Горизонтальный layout  для кнопок
+        # Горизонтальный layout для кнопок
         self.horizontal_layout = QtWidgets.QHBoxLayout()
         self.horizontal_layout.setObjectName("horizontal_layout")
 
@@ -92,7 +92,7 @@ class UiMainWindow(object):
         """Инициализация таблицы при запуске приложения"""
         self.table_widget = QtWidgets.QTableWidget(parent=self.central_widget)
         self.table_widget.setObjectName("table_widget")
-        self.table_widget.setColumnCount(5)
+        self.table_widget.setColumnCount(6)
         self.table_widget.verticalHeader().setVisible(False)
 
         # Вертикальные заголовки
@@ -101,8 +101,8 @@ class UiMainWindow(object):
             self.table_widget.setVerticalHeaderItem(row, item)
 
         # Горизонтальные заголовки
-        headers = ["", "Обозначение", "Наименование", "Количество", "Материал"]
-        for col in range(5):
+        headers = ["", "Обозначение", "Наименование", "Количество", "Материал", "Раздел спецификации"]
+        for col in range(6):
             item = QtWidgets.QTableWidgetItem()
             self.table_widget.setHorizontalHeaderItem(col, item)
             if col > 0:
@@ -123,7 +123,7 @@ class UiMainWindow(object):
         self.compas_service.fill_properties()
         self.table_widget.setRowCount(len(self.compas_service.properties))
 
-        for row, (object_id, mark, name, quantity, material, level, is_assembly) in enumerate(self.compas_service.properties):
+        for row, (object_id, mark, name, quantity, material, level, is_assembly, specification) in enumerate(self.compas_service.properties):
             level = int(level)
 
             # Генерация символов иерархии
@@ -167,6 +167,7 @@ class UiMainWindow(object):
             self.table_widget.setItem(row, 2, QtWidgets.QTableWidgetItem(name))
             self.table_widget.setItem(row, 3, QtWidgets.QTableWidgetItem(str(quantity)))
             self.table_widget.setItem(row, 4, QtWidgets.QTableWidgetItem(material))
+            self.table_widget.setItem(row, 5, QtWidgets.QTableWidgetItem(specification))
 
             if object_id is None:
                 cell_widget = self.table_widget.cellWidget(row, 0)

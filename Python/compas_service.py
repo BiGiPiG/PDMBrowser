@@ -66,7 +66,7 @@ class CompasService:
             val = None
             from_source = True
 
-            result = ipk.GetPropertyValue(prop, None, True, True)
+            result = ipk.GetPropertyValue(prop, None, True, False)
 
             return result[1] if prop else None
         except Exception as e:
@@ -80,10 +80,10 @@ class CompasService:
             mark = getattr(part, "Mark", "")
             quantity = int(getattr(part, "Quantity", 1))
             material = getattr(part, "Material", "Неизвестно")
-
             is_assembly = hasattr(part, "Parts") and part.Parts.Count > 0
+            specification = self.get_property(part, "Раздел спецификации")
 
-            part_key = (object_id, mark, name, material, level, is_assembly)
+            part_key = (object_id, mark, name, material, level, is_assembly, specification)
             print(part_key)
 
             if part_key in self.parts_dict:
@@ -109,8 +109,8 @@ class CompasService:
             self.walk_parts(self.top_part)
 
             self.properties = [
-                (object_id, mark, name, str(quantity), material, level, is_assembly)
-                for (object_id, mark, name, material, level, is_assembly), quantity in self.parts_dict.items()
+                (object_id, mark, name, str(quantity), material, level, is_assembly, specification)
+                for (object_id, mark, name, material, level, is_assembly, specification), quantity in self.parts_dict.items()
             ]
 
             print("Готово. Найдено компонентов:", len(self.properties))
