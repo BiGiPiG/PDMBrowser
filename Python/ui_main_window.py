@@ -1,4 +1,6 @@
 from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6.QtWidgets import QTableWidget
+
 from compas_service import CompasService
 from browser_client import BrowserClient
 
@@ -94,6 +96,8 @@ class UiMainWindow(object):
         self.table_widget.setObjectName("table_widget")
         self.table_widget.setColumnCount(6)
         self.table_widget.verticalHeader().setVisible(False)
+        self.table_widget.setSelectionBehavior(QTableWidget.SelectRows)
+        self.table_widget.setSelectionMode(QTableWidget.SingleSelection)
 
         # Вертикальные заголовки
         for row in range(4):
