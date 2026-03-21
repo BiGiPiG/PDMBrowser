@@ -1,5 +1,5 @@
 from PySide6 import QtCore, QtGui, QtWidgets
-from PySide6.QtWidgets import QTableWidget
+from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
 
 from compas_service import CompasService
 from browser_client import BrowserClient
@@ -11,179 +11,208 @@ class UiMainWindow(object):
         self.horizontal_layout = None
         self.vertical_layout = None
         self.central_widget = None
-        self.table_widget = None
+        self.tree_widget = None
         self.save_btn = None
         self.update_btn = None
         self.check_btn = None
         self.edit_btn = None
         self.compas_service = CompasService()
         self.pdm_client = BrowserClient()
+        self.item_data_map = {}
 
     def setup_ui(self, ui_main_window):
         ui_main_window.setObjectName("PDMBrowser")
         ui_main_window.resize(600, 300)
         ui_main_window.setMinimumSize(QtCore.QSize(600, 300))
 
-        # Центральный виджет
         self.central_widget = QtWidgets.QWidget(parent=ui_main_window)
         self.central_widget.setEnabled(True)
         self.central_widget.setObjectName("central_widget")
 
-        # Главный вертикальный layout
         self.vertical_layout = QtWidgets.QVBoxLayout(self.central_widget)
         self.vertical_layout.setObjectName("vertical_layout")
 
-        # Горизонтальный layout для кнопок
         self.horizontal_layout = QtWidgets.QHBoxLayout()
         self.horizontal_layout.setObjectName("horizontal_layout")
 
-        # Кнопка регистрации
-        self.reg_btn = QtWidgets.QPushButton(parent=self.central_widget)
-        self.reg_btn.setIcon(QtGui.QIcon(QtGui.QPixmap(":/icon/resources/reg.png")))
-        self.reg_btn.setIconSize(QtCore.QSize(20, 20))
-        self.reg_btn.setObjectName("reg_btn")
+        # Кнопки
+        self.reg_btn = self._create_button(":/icon/resources/reg.png", "reg_btn")
         self.horizontal_layout.addWidget(self.reg_btn)
 
-        # Кнопка сохранения
-        self.save_btn = QtWidgets.QPushButton(parent=self.central_widget)
-        self.save_btn.setIcon(QtGui.QIcon(QtGui.QPixmap(":/icon/resources/save2.png")))
-        self.save_btn.setIconSize(QtCore.QSize(20, 20))
-        self.save_btn.setObjectName("save_btn")
+        self.save_btn = self._create_button(":/icon/resources/save2.png", "save_btn")
         self.horizontal_layout.addWidget(self.save_btn)
 
-        # Кнопка обновления
-        self.update_btn = QtWidgets.QPushButton(parent=self.central_widget)
-        self.update_btn.setIcon(QtGui.QIcon(QtGui.QPixmap(":/icon/resources/update.png")))
-        self.update_btn.setIconSize(QtCore.QSize(20, 20))
-        self.update_btn.setObjectName("update_btn")
+        self.update_btn = self._create_button(":/icon/resources/update.png", "update_btn")
         self.horizontal_layout.addWidget(self.update_btn)
 
-        # Кнопка проверки
-        self.check_btn = QtWidgets.QPushButton(parent=self.central_widget)
-        self.check_btn.setIcon(QtGui.QIcon(QtGui.QPixmap(":/icon/resources/check.png")))
-        self.check_btn.setIconSize(QtCore.QSize(20, 20))
-        self.check_btn.setObjectName("check_btn")
+        self.check_btn = self._create_button(":/icon/resources/check.png", "check_btn")
         self.horizontal_layout.addWidget(self.check_btn)
 
-        # Кнопка редактирования
-        self.edit_btn = QtWidgets.QPushButton(parent=self.central_widget)
-        self.edit_btn.setIcon(QtGui.QIcon(QtGui.QPixmap(":/icon/resources/edit.png")))
-        self.edit_btn.setIconSize(QtCore.QSize(20, 20))
-        self.edit_btn.setObjectName("edit_btn")
+        self.edit_btn = self._create_button(":/icon/resources/edit.png", "edit_btn")
         self.horizontal_layout.addWidget(self.edit_btn)
 
-        # Прокладка между кнопками и таблицей
         spacer_item = QtWidgets.QSpacerItem(
             40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum
         )
         self.horizontal_layout.addItem(spacer_item)
 
-        # Добавление кнопочной панели в вертикальный layout
         self.vertical_layout.addLayout(self.horizontal_layout)
 
-        self.setup_table()
-
-        # Перевод текста интерфейса
+        self.setup_tree()
         self.retranslate_ui(ui_main_window)
         QtCore.QMetaObject.connectSlotsByName(ui_main_window)
 
-        # Установка центрального виджета
         ui_main_window.setCentralWidget(self.central_widget)
 
-    def setup_table(self):
-        """Инициализация таблицы при запуске приложения"""
-        self.table_widget = QtWidgets.QTableWidget(parent=self.central_widget)
-        self.table_widget.setObjectName("table_widget")
-        self.table_widget.setColumnCount(6)
-        self.table_widget.verticalHeader().setVisible(False)
-        self.table_widget.setSelectionBehavior(QTableWidget.SelectRows)
-        self.table_widget.setSelectionMode(QTableWidget.SingleSelection)
+    def _create_button(self, icon_path, object_name):
+        btn = QtWidgets.QPushButton(parent=self.central_widget)
+        btn.setIcon(QtGui.QIcon(QtGui.QPixmap(icon_path)))
+        btn.setIconSize(QtCore.QSize(20, 20))
+        btn.setObjectName(object_name)
+        return btn
 
-        # Вертикальные заголовки
-        for row in range(4):
-            item = QtWidgets.QTableWidgetItem()
-            self.table_widget.setVerticalHeaderItem(row, item)
+    def setup_tree(self):
+        """Инициализация дерева с табличным стилем"""
+        self.tree_widget = QTreeWidget(parent=self.central_widget)
+        self.tree_widget.setObjectName("tree_widget")
+        self.tree_widget.setColumnCount(6)
+        self.tree_widget.setHeaderLabels(
+            ["", "Обозначение", "Наименование", "Количество", "Материал", "Раздел спецификации"])
 
-        # Горизонтальные заголовки
-        headers = ["", "Обозначение", "Наименование", "Количество", "Материал", "Раздел спецификации"]
-        for col in range(6):
-            item = QtWidgets.QTableWidgetItem()
-            self.table_widget.setHorizontalHeaderItem(col, item)
-            if col > 0:
-                item.setText(headers[col])
+        # === НАСТРОЙКИ ДЛЯ ВИДА ТАБЛИЦЫ ===
+        self.tree_widget.setIndentation(20)              # Отступ для иерархии
+        self.tree_widget.setUniformRowHeights(True)      # Одинаковая высота строк
+        self.tree_widget.setAllColumnsShowFocus(True)    # Подсветка всей строки
+        self.tree_widget.setItemsExpandable(True)        # Разрешить сворачивание
+        self.tree_widget.setExpandsOnDoubleClick(False)  # Разворачивание по клику на стрелку
 
-        # Иконка в первой строке таблицы
-        item = QtWidgets.QTableWidgetItem()
-        item.setIcon(QtGui.QIcon(QtGui.QPixmap(":/icon/resources/asm.png")))
-        self.table_widget.setItem(0, 0, item)
+        # Сетка как в таблице
+        self.tree_widget.setStyleSheet("""
+            QTreeWidget {
+                border: 1px solid #cccccc;
+                background-color: white;
+                gridline-color: #cccccc;
+                alternate-background-color: #f9f9f9;
+            }
+            QTreeWidget::item {
+                height: 28px;
+                border: 1px solid #e0e0e0;
+            }
+            QTreeWidget::item:hover {
+                background-color: #e8f4fc;
+            }
+            QTreeWidget::item:selected {
+                background-color: #0078d4;
+                color: white;
+            }
+            QHeaderView::section {
+                background-color: #f0f0f0;
+                border: 1px solid #cccccc;
+                border-right: none;
+                padding: 4px;
+                font-weight: bold;
+            }
+            QTreeWidget::branch {
+                border: none;
+            }
+        """)
 
-        # # Иерархические символы
-        # for i, symbol in zip(range(1, 4), ["├", "├└", "└"]):
-        #     item = QtWidgets.QTableWidgetItem()
-        #     item.setFont(QtGui.QFont("", 10))
-        #     item.setText(symbol)
-        #     self.table_widget.setItem(i, 0, item)
+        # Включение сетки
+        self.tree_widget.setAlternatingRowColors(True)
 
+        # Настройки выделения
+        self.tree_widget.setSelectionBehavior(QTreeWidget.SelectRows)
+        self.tree_widget.setSelectionMode(QTreeWidget.SingleSelection)
+
+        # Подключение сигналов
+        self.tree_widget.itemClicked.connect(self.on_item_clicked)
+        self.tree_widget.itemSelectionChanged.connect(self.on_selection_changed)
+
+        # Заполнение дерева
         self.compas_service.fill_properties()
-        self.table_widget.setRowCount(len(self.compas_service.properties))
 
-        for row, (object_id, mark, name, quantity, material, level, is_assembly, specification) in enumerate(self.compas_service.properties):
+        parent_items = {}
+
+        for row, (object_id, mark, name, quantity, material, level, is_assembly, specification) in enumerate(
+                self.compas_service.properties):
             level = int(level)
 
-            # Генерация символов иерархии
-            symbol = self.generate_line(row, level)
+            tree_item = QTreeWidgetItem()
 
-            # Создаём виджет для первой ячейки
-            cell_widget = QtWidgets.QWidget()
-            layout = QtWidgets.QHBoxLayout()
-            layout.setContentsMargins(0, 0, 0, 0)
+            # Иконка
+            icon_pixmap = QtGui.QPixmap(":/icon/resources/asm.png" if is_assembly else ":/icon/resources/part.png")
+            icon_pixmap = icon_pixmap.scaled(16, 16, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+            tree_item.setIcon(0, QtGui.QIcon(icon_pixmap))
 
-            # Сдвиг от края для первого столбца
-            left_margin = 20
-            layout.setContentsMargins(left_margin, 0, 0, 0)
+            # Данные колонок
+            tree_item.setText(1, mark)
+            tree_item.setText(2, name)
+            tree_item.setText(3, str(quantity))
+            tree_item.setText(4, material)
+            tree_item.setText(5, specification)
 
-            # Добавляем символы иерархии
-            if row > 0:
-                label_text = QtWidgets.QLabel(symbol)
-                label_text.setFont(QtGui.QFont("", 10))
-                layout.addWidget(label_text)
+            # Сохранение данных
+            self.item_data_map[tree_item] = {
+                'object_id': object_id,
+                'mark': mark,
+                'name': name,
+                'quantity': quantity,
+                'material': material,
+                'level': level,
+                'is_assembly': is_assembly,
+                'specification': specification
+            }
 
-            # Добавляем иконку
-            if is_assembly:
-                icon_label = QtWidgets.QLabel()
-                pixmap = QtGui.QPixmap(":/icon/resources/asm.png").scaled(16, 16, QtCore.Qt.KeepAspectRatio,
-                                                                          QtCore.Qt.SmoothTransformation)
-                icon_label.setPixmap(pixmap)
-                layout.addWidget(icon_label)
-            else:
-                icon_label = QtWidgets.QLabel()
-                pixmap = QtGui.QPixmap(":/icon/resources/part.png").scaled(16, 16, QtCore.Qt.KeepAspectRatio,
-                                                                          QtCore.Qt.SmoothTransformation)
-                icon_label.setPixmap(pixmap)
-                layout.addWidget(icon_label)
-
-            layout.addStretch()  # Чтобы элементы не прижимались
-
-            cell_widget.setLayout(layout)
-            self.table_widget.setCellWidget(row, 0, cell_widget)
-
-            self.table_widget.setItem(row, 1, QtWidgets.QTableWidgetItem(mark))
-            self.table_widget.setItem(row, 2, QtWidgets.QTableWidgetItem(name))
-            self.table_widget.setItem(row, 3, QtWidgets.QTableWidgetItem(str(quantity)))
-            self.table_widget.setItem(row, 4, QtWidgets.QTableWidgetItem(material))
-            self.table_widget.setItem(row, 5, QtWidgets.QTableWidgetItem(specification))
+            if specification == "Cтандартные изделия":
+                tree_item.setFlags(tree_item.flags() & ~QtCore.Qt.ItemFlag.ItemIsSelectable)
+                for col in range(6):
+                    tree_item.setForeground(col, QtGui.QColor("#888888"))
 
             if object_id is None:
-                cell_widget = self.table_widget.cellWidget(row, 0)
-                if cell_widget is not None:
-                    cell_widget.setStyleSheet("background-color: #fa8282;")
-            else:
-                cell_widget = self.table_widget.cellWidget(row, 0)
-                if self.pdm_client.is_editing(object_id) == 1:
-                    cell_widget.setStyleSheet("background-color: #0fffa7;")
+                for col in range(6):
+                    tree_item.setBackground(col, QtGui.QColor("#fa8282"))
+            elif self.pdm_client.is_editing(object_id) == 1:
+                for col in range(6):
+                    tree_item.setBackground(col, QtGui.QColor("#0fffa7"))
 
-        # Добавление таблицы в макет
-        self.vertical_layout.addWidget(self.table_widget)
+            if level == 0 or level == 1:
+                self.tree_widget.addTopLevelItem(tree_item)
+            else:
+                parent_level = level - 1
+                if parent_level in parent_items:
+                    parent_items[parent_level].addChild(tree_item)
+                else:
+                    self.tree_widget.addTopLevelItem(tree_item)
+
+            parent_items[level] = tree_item
+            tree_item.setExpanded(False)
+
+        self.tree_widget.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        self.tree_widget.header().setSectionResizeMode(1, QtWidgets.QHeaderView.Interactive)
+        self.tree_widget.header().setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
+        self.tree_widget.header().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
+        self.tree_widget.header().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
+        self.tree_widget.header().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeToContents)
+
+        self.vertical_layout.addWidget(self.tree_widget)
+
+    def on_item_clicked(self, item, column):
+        data = self.item_data_map.get(item)
+        if data:
+            print(f"Клик: {data['mark']} - {data['name']}")
+
+    def on_selection_changed(self):
+        selected_items = self.tree_widget.selectedItems()
+        if selected_items:
+            data = self.item_data_map.get(selected_items[0])
+            if data:
+                print(f"Выбрано: {data['mark']} (ID: {data['object_id']})")
+
+    def get_selected_item_data(self):
+        selected_items = self.tree_widget.selectedItems()
+        if selected_items:
+            return self.item_data_map.get(selected_items[0])
+        return None
 
     def retranslate_ui(self, ui_main_window):
         _translate = QtCore.QCoreApplication.translate
@@ -193,14 +222,3 @@ class UiMainWindow(object):
         self.save_btn.setToolTip(_translate("PDMBrowser", "Сохранить документ"))
         self.update_btn.setToolTip(_translate("PDMBrowser", "Обновить документ"))
         self.check_btn.setToolTip(_translate("PDMBrowser", "Завершить редактирование"))
-
-    def generate_line(self, row, level):
-        symbol = ""
-        next_level = int(self.compas_service.properties[row + 1][5]) if row + 1 < len(
-            self.compas_service.properties) else 0
-
-        for lvl in range(1, level):
-            symbol += "│   "
-
-        symbol += "└" if next_level < level else "├"
-        return symbol
