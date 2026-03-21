@@ -61,7 +61,7 @@ class CompasService:
     def get_property(self, part, prop_name):
         try:
             ipk = self.kompas_api7_module.IPropertyKeeper(part)
-            prop = self.property_manager.GetProperty(part.FileName, prop_name)
+            prop = self.property_manager.GetProperty(self.active_document, prop_name)
 
             val = None
             from_source = True
