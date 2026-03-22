@@ -4,6 +4,7 @@ import pythoncom
 from win32com.client import Dispatch, gencache
 
 
+
 class CompasService:
     """Класс для работы с KOMPAS-3D v20 и получения информации о деталях сборки"""
 
@@ -94,10 +95,13 @@ class CompasService:
                 if is_assembly:
                     for i in range(part.Parts.Count):
                         child_part = part.Parts.Part(i)
-                        self.walk_parts(child_part, level + 1)
+                        if self.is_walk(specification): self.walk_parts(child_part, level + 1)
 
         except Exception as e:
             print("  " * level + f"Ошибка при обходе: {e}")
+
+    def is_walk(self, specification):
+        return specification != "Стандартные изделия" and specification != "Материал" and specification != "Прочие изделия"
 
     def fill_properties(self):
         try:

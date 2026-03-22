@@ -36,19 +36,19 @@ class UiMainWindow(object):
         self.horizontal_layout.setObjectName("horizontal_layout")
 
         # Кнопки
-        self.reg_btn = self._create_button(":/icon/resources/reg.png", "reg_btn")
+        self.reg_btn = self._create_button(":/resources/reg.png", "reg_btn")
         self.horizontal_layout.addWidget(self.reg_btn)
 
-        self.save_btn = self._create_button(":/icon/resources/save2.png", "save_btn")
+        self.save_btn = self._create_button(":/resources/save2.png", "save_btn")
         self.horizontal_layout.addWidget(self.save_btn)
 
-        self.update_btn = self._create_button(":/icon/resources/update.png", "update_btn")
+        self.update_btn = self._create_button(":/resources/update.png", "update_btn")
         self.horizontal_layout.addWidget(self.update_btn)
 
-        self.check_btn = self._create_button(":/icon/resources/check.png", "check_btn")
+        self.check_btn = self._create_button(":/resources/check.png", "check_btn")
         self.horizontal_layout.addWidget(self.check_btn)
 
-        self.edit_btn = self._create_button(":/icon/resources/edit.png", "edit_btn")
+        self.edit_btn = self._create_button(":/resources/edit.png", "edit_btn")
         self.horizontal_layout.addWidget(self.edit_btn)
 
         spacer_item = QtWidgets.QSpacerItem(
@@ -86,17 +86,9 @@ class UiMainWindow(object):
         self.tree_widget.setItemsExpandable(True)        # Разрешить сворачивание
         self.tree_widget.setExpandsOnDoubleClick(False)  # Разворачивание по клику на стрелку
 
-        # Сетка как в таблице
         self.tree_widget.setStyleSheet("""
-            QTreeWidget {
-                border: 1px solid #cccccc;
-                background-color: white;
-                gridline-color: #cccccc;
-                alternate-background-color: #f9f9f9;
-            }
             QTreeWidget::item {
                 height: 28px;
-                border: 1px solid #e0e0e0;
             }
             QTreeWidget::item:hover {
                 background-color: #e8f4fc;
@@ -111,9 +103,6 @@ class UiMainWindow(object):
                 border-right: none;
                 padding: 4px;
                 font-weight: bold;
-            }
-            QTreeWidget::branch {
-                border: none;
             }
         """)
 
@@ -131,7 +120,7 @@ class UiMainWindow(object):
         # Заполнение дерева
         self.compas_service.fill_properties()
 
-        parent_items = {}
+        parent_stack = {}
 
         for row, (object_id, mark, name, quantity, material, level, is_assembly, specification) in enumerate(
                 self.compas_service.properties):
@@ -140,7 +129,13 @@ class UiMainWindow(object):
             tree_item = QTreeWidgetItem()
 
             # Иконка
-            icon_pixmap = QtGui.QPixmap(":/icon/resources/asm.png" if is_assembly else ":/icon/resources/part.png")
+            if specification == "Стандартные изделия":
+                icon_pixmap = QtGui.QPixmap(":/resources/std.png")
+            elif is_assembly:
+                icon_pixmap = QtGui.QPixmap(":/resources/asm.png")
+            else:
+                icon_pixmap = QtGui.QPixmap(":/resources/part.png")
+
             icon_pixmap = icon_pixmap.scaled(16, 16, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
             tree_item.setIcon(0, QtGui.QIcon(icon_pixmap))
 
@@ -175,16 +170,21 @@ class UiMainWindow(object):
                 for col in range(6):
                     tree_item.setBackground(col, QtGui.QColor("#0fffa7"))
 
-            if level == 0 or level == 1:
+            if level == 0:
                 self.tree_widget.addTopLevelItem(tree_item)
+                parent_stack[level] = tree_item
             else:
                 parent_level = level - 1
-                if parent_level in parent_items:
-                    parent_items[parent_level].addChild(tree_item)
+                if parent_level in parent_stack:
+                    parent_stack[parent_level].addChild(tree_item)
                 else:
                     self.tree_widget.addTopLevelItem(tree_item)
 
-            parent_items[level] = tree_item
+            parent_stack[level] = tree_item
+
+            for deeper_level in list(parent_stack.keys()):
+                if deeper_level > level:
+                    del parent_stack[deeper_level]
             tree_item.setExpanded(False)
 
         self.tree_widget.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
