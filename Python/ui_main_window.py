@@ -17,7 +17,7 @@ class UiMainWindow(object):
         self.check_btn = None
         self.edit_btn = None
         self.compas_service = CompasService()
-        self.pdm_client = BrowserClient()
+        self.browser_client = BrowserClient()
         self.item_data_map = {}
 
     def setup_ui(self, ui_main_window):
@@ -37,18 +37,23 @@ class UiMainWindow(object):
 
         # Кнопки
         self.reg_btn = self._create_button(":/resources/reg.png", "reg_btn")
+        self.reg_btn.setEnabled(False)
         self.horizontal_layout.addWidget(self.reg_btn)
 
         self.save_btn = self._create_button(":/resources/save2.png", "save_btn")
+        self.save_btn.setEnabled(False)
         self.horizontal_layout.addWidget(self.save_btn)
 
         self.update_btn = self._create_button(":/resources/update.png", "update_btn")
+        self.update_btn.setEnabled(True)
         self.horizontal_layout.addWidget(self.update_btn)
 
         self.check_btn = self._create_button(":/resources/check.png", "check_btn")
+        self.check_btn.setEnabled(False)
         self.horizontal_layout.addWidget(self.check_btn)
 
         self.edit_btn = self._create_button(":/resources/edit.png", "edit_btn")
+        self.edit_btn.setEnabled(False)
         self.horizontal_layout.addWidget(self.edit_btn)
 
         spacer_item = QtWidgets.QSpacerItem(
@@ -208,6 +213,34 @@ class UiMainWindow(object):
             data = self.item_data_map.get(selected_items[0])
             if data:
                 print(f"Выбрано: {data['mark']} (ID: {data['object_id']})")
+            self.update_buttons(data['object_id'])
+
+    def update_buttons(self, object_id):
+        self.reg_btn.setEnabled(True)
+
+        if object_id and self.browser_client.is_editing(object_id) == 0:
+            self.edit_btn.setEnabled(True)
+            self.reg_btn.setEnabled(False)
+            self.save_btn.setEnabled(False)
+            self.check_btn.setEnabled(False)
+            return
+
+        if not object_id:
+            self.save_btn.setEnabled(False)
+            self.check_btn.setEnabled(False)
+        else:
+            self.save_btn.setEnabled(True)
+            self.check_btn.setEnabled(True)
+
+    def block_buttons(self):
+        self.reg_btn.setEnabled(False)
+        self.save_btn.setEnabled(False)
+        self.check_btn.setEnabled(False)
+
+        self.edit_btn = self._create_button(":/resources/edit.png", "edit_btn")
+        self.edit_btn.setEnabled(False)
+        self.horizontal_layout.addWidget(self.edit_btn)
+
 
     def get_selected_item_data(self):
         selected_items = self.tree_widget.selectedItems()

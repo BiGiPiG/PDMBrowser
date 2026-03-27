@@ -12,10 +12,10 @@ class BrowserClient:
         checkoutBy = self.browser.getSessionKeeper().getSession().getObject(object_id).getCheckoutBy()
         
         if checkoutBy == 0:
-            return 0;
+            return 0
         elif checkoutBy == self.browser.getSessionKeeper().getSession().getUserID():
-            return 1;
-        else :
-            return 2;
+            return 1
+        else:
+            return 2
 
 

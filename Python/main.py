@@ -26,6 +26,7 @@ class MainWindow(QMainWindow):
         self.ui.tree_widget.deleteLater()
         #self.ui.table_widget.setParent(None)
         #self.ui.table_widget.deleteLater()
+        self.ui.block_buttons()
         self.ui.setup_tree()
 
 
