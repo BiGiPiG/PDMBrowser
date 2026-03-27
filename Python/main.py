@@ -17,15 +17,16 @@ class MainWindow(QMainWindow):
 
         self.ui.reg_btn.clicked.connect(registration)
         self.ui.save_btn.clicked.connect(save)
-        self.ui.update_btn.clicked.connect(self.update_table)
+        self.ui.update_btn.clicked.connect(self.update_tree)
         self.ui.check_btn.clicked.connect(check_file)
         self.ui.edit_btn.clicked.connect(edit_file)
 
-    def update_table(self):
-        print("update table")
-        self.ui.table_widget.setParent(None)
-        self.ui.table_widget.deleteLater()
-        self.ui.setup_table()
+    def update_tree(self):
+        print("update tree")
+        self.ui.tree_widget.deleteLater()
+        #self.ui.table_widget.setParent(None)
+        #self.ui.table_widget.deleteLater()
+        self.ui.setup_tree()
 
 
 def registration():

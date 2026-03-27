@@ -167,6 +167,7 @@ class UiMainWindow(object):
                 for col in range(6):
                     tree_item.setBackground(col, QtGui.QColor("#fa8282"))
             elif self.pdm_client.is_editing(object_id) == 1:
+                print ( self.pdm_client.browser.getSessionKeeper().getSession().getObject(object_id).getModifyDate() )
                 for col in range(6):
                     tree_item.setBackground(col, QtGui.QColor("#0fffa7"))
 
