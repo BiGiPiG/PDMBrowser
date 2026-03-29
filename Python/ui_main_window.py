@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
 
 from compas_service import CompasService
 from browser_client import BrowserClient
+from row_color import RowColor
 
 
 class UiMainWindow(object):
@@ -165,16 +166,20 @@ class UiMainWindow(object):
 
             if specification == "Cтандартные изделия":
                 tree_item.setFlags(tree_item.flags() & ~QtCore.Qt.ItemFlag.ItemIsSelectable)
-                for col in range(6):
-                    tree_item.setForeground(col, QtGui.QColor("#888888"))
+            #     for col in range(6):
+            #         tree_item.setForeground(col, QtGui.QColor("#888888"))
+            #
+            # if object_id is None:
+            #     for col in range(6):
+            #         tree_item.setBackground(col, QtGui.QColor("#fa8282"))
+            # elif self.browser_client.is_editing(object_id) == 1:
+            #     print ( self.browser_client.browser.getSessionKeeper().getSession().getObject(object_id).getModifyDate() )
+            #     for col in range(6):
+            #         tree_item.setBackground(col, QtGui.QColor("#0fffa7"))
 
-            if object_id is None:
-                for col in range(6):
-                    tree_item.setBackground(col, QtGui.QColor("#fa8282"))
-            elif self.pdm_client.is_editing(object_id) == 1:
-                print ( self.pdm_client.browser.getSessionKeeper().getSession().getObject(object_id).getModifyDate() )
-                for col in range(6):
-                    tree_item.setBackground(col, QtGui.QColor("#0fffa7"))
+            row_color = self.get_raw_color(object_id)
+            for col in range(6):
+                tree_item.setBackground(col, row_color)
 
             if level == 0:
                 self.tree_widget.addTopLevelItem(tree_item)
@@ -213,33 +218,42 @@ class UiMainWindow(object):
             data = self.item_data_map.get(selected_items[0])
             if data:
                 print(f"Выбрано: {data['mark']} (ID: {data['object_id']})")
-            self.update_buttons(data['object_id'])
+                color = f"#{hex(selected_items[0].background(0).color().rgb())[4:]}"
+                self.update_buttons(color)
 
-    def update_buttons(self, object_id):
-        self.reg_btn.setEnabled(True)
-
-        if object_id and self.browser_client.is_editing(object_id) == 0:
-            self.edit_btn.setEnabled(True)
-            self.reg_btn.setEnabled(False)
-            self.save_btn.setEnabled(False)
-            self.check_btn.setEnabled(False)
-            return
-
-        if not object_id:
-            self.save_btn.setEnabled(False)
-            self.check_btn.setEnabled(False)
-        else:
-            self.save_btn.setEnabled(True)
-            self.check_btn.setEnabled(True)
+    def update_buttons(self, color):
+        match color:
+            case RowColor.RED:
+                self.reg_btn.setEnabled(True)
+                self.save_btn.setEnabled(False)
+                self.check_btn.setEnabled(False)
+                self.edit_btn.setEnabled(False)
+            case RowColor.GREEN:
+                self.reg_btn.setEnabled(False)
+                self.save_btn.setEnabled(False)
+                self.check_btn.setEnabled(True)
+                self.edit_btn.setEnabled(False)
+            case RowColor.YELLOW:
+                self.reg_btn.setEnabled(False)
+                self.save_btn.setEnabled(True)
+                self.check_btn.setEnabled(True)
+                self.edit_btn.setEnabled(False)
+            case RowColor.WHITE:
+                self.reg_btn.setEnabled(False)
+                self.save_btn.setEnabled(False)
+                self.check_btn.setEnabled(False)
+                self.edit_btn.setEnabled(True)
+            case RowColor.BLUE:
+                self.reg_btn.setEnabled(False)
+                self.save_btn.setEnabled(False)
+                self.check_btn.setEnabled(False)
+                self.edit_btn.setEnabled(False)
 
     def block_buttons(self):
         self.reg_btn.setEnabled(False)
         self.save_btn.setEnabled(False)
         self.check_btn.setEnabled(False)
-
-        self.edit_btn = self._create_button(":/resources/edit.png", "edit_btn")
         self.edit_btn.setEnabled(False)
-        self.horizontal_layout.addWidget(self.edit_btn)
 
 
     def get_selected_item_data(self):
@@ -256,3 +270,12 @@ class UiMainWindow(object):
         self.save_btn.setToolTip(_translate("PDMBrowser", "Сохранить документ"))
         self.update_btn.setToolTip(_translate("PDMBrowser", "Обновить документ"))
         self.check_btn.setToolTip(_translate("PDMBrowser", "Завершить редактирование"))
+
+    #TODO
+    def get_raw_color(self, object_id):
+        if object_id is None:
+            return QtGui.QColor(RowColor.RED)
+        elif self.browser_client.is_editing(object_id) == 1:
+            return QtGui.QColor(RowColor.GREEN)
+        else:
+            return QtGui.QColor(RowColor.WHITE)
