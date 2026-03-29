@@ -2,7 +2,7 @@ from enum import StrEnum
 
 class RowColor(StrEnum):
     RED = "#fa8282"
-    GREEN = "#00BB2E"
-    YELLOW = "#F7BA0B"
-    BLUE = "#0E518D"
-    WHITE = "#FFFFFF"
+    GREEN = "#00bb2e"
+    YELLOW = "#f7ba0b"
+    BLUE = "#0e518d"
+    WHITE = "#ffffff"
