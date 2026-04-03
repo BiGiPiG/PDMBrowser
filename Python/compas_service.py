@@ -1,6 +1,7 @@
 from mailbox import MH
 
 import pythoncom
+import datetime
 from win32com.client import Dispatch, gencache
 
 
@@ -83,8 +84,9 @@ class CompasService:
             material = getattr(part, "Material", "Неизвестно")
             is_assembly = hasattr(part, "Parts") and part.Parts.Count > 0
             specification = self.get_property(part, "Раздел спецификации")
+            last_edit = datetime.datetime.strptime(self.get_property(part, "Последнее изменение"), "%d.%m.%Y %H:%M:%S")
 
-            part_key = (object_id, mark, name, material, level, is_assembly, specification)
+            part_key = (object_id, mark, name, material, level, is_assembly, specification, last_edit)
             print(part_key)
 
             if part_key in self.parts_dict:
@@ -113,8 +115,8 @@ class CompasService:
             self.walk_parts(self.top_part)
 
             self.properties = [
-                (object_id, mark, name, str(quantity), material, level, is_assembly, specification)
-                for (object_id, mark, name, material, level, is_assembly, specification), quantity in self.parts_dict.items()
+                (object_id, mark, name, str(quantity), material, level, is_assembly, specification, last_edit)
+                for (object_id, mark, name, material, level, is_assembly, specification, last_edit), quantity in self.parts_dict.items()
             ]
 
             print("Готово. Найдено компонентов:", len(self.properties))

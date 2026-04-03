@@ -1,5 +1,6 @@
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
+import datetime
 
 from compas_service import CompasService
 from browser_client import BrowserClient
@@ -128,7 +129,7 @@ class UiMainWindow(object):
 
         parent_stack = {}
 
-        for row, (object_id, mark, name, quantity, material, level, is_assembly, specification) in enumerate(
+        for row, (object_id, mark, name, quantity, material, level, is_assembly, specification, last_edit) in enumerate(
                 self.compas_service.properties):
             level = int(level)
 
@@ -175,9 +176,9 @@ class UiMainWindow(object):
             # elif self.browser_client.is_editing(object_id) == 1:
             #     print ( self.browser_client.browser.getSessionKeeper().getSession().getObject(object_id).getModifyDate() )
             #     for col in range(6):
-            #         tree_item.setBackground(col, QtGui.QColor("#0fffa7"))
+            #         tree_item.setBackground(col, QtGui.QColor("#0fffa7")) 
 
-            row_color = self.get_raw_color(object_id)
+            row_color = self.get_raw_color(object_id, last_edit, specification, name)
             for col in range(6):
                 tree_item.setBackground(col, row_color)
 
@@ -248,6 +249,12 @@ class UiMainWindow(object):
                 self.save_btn.setEnabled(False)
                 self.check_btn.setEnabled(False)
                 self.edit_btn.setEnabled(False)
+            case _:
+                self.reg_btn.setEnabled(False)
+                self.save_btn.setEnabled(False)
+                self.check_btn.setEnabled(False)
+                self.edit_btn.setEnabled(False)
+            
 
     def block_buttons(self):
         self.reg_btn.setEnabled(False)
@@ -272,10 +279,37 @@ class UiMainWindow(object):
         self.check_btn.setToolTip(_translate("PDMBrowser", "Завершить редактирование"))
 
     #TODO
-    def get_raw_color(self, object_id):
-        if object_id is None:
-            return QtGui.QColor(RowColor.RED)
-        elif self.browser_client.is_editing(object_id) == 1:
-            return QtGui.QColor(RowColor.GREEN)
+    def get_raw_color(self, object_id, last_edit, specification, name):
+    
+        if specification == "Стандартные изделия":
+            
+            session = self.browser_client.browser.getSessionKeeper().getSession()
+            
+            collection = session.getObjectCollection(5)
+            
+            cols = self.browser_client.gateway.new_array(self.browser_client.gateway.jvm.API.kernel.search.ColumnDescriptor,1)
+            
+            cols[0] = self.browser_client.gateway.jvm.API.kernel.search.ColumnDescriptor("Наименование")
+            
+            setParam = self.browser_client.gateway.jvm.API.kernel.search.DBRecordSetParams(None, cols)
+            
+            objs = collection.select(setParam)
+            
+            for obj in objs:
+                if obj[1] == name:
+                    return QtGui.QColor(RowColor.GREEN_STD)
+            
+            return QtGui.QColor(RowColor.RED_STD)
+            
         else:
-            return QtGui.QColor(RowColor.WHITE)
+        
+            if object_id is None:
+                return QtGui.QColor(RowColor.RED)
+            elif self.browser_client.is_editing(object_id) == 1:
+                date = self.browser_client.browser.getSessionKeeper().getSession().getObject(object_id).getModifyDate()
+                if datetime.datetime.strptime(str(date), '%Y-%m-%d %H:%M:%S.%f') == last_edit:
+                    return QtGui.QColor(RowColor.GREEN)
+                else:
+                    return QtGui.QColor(RowColor.YELLOW)
+            else:
+                return QtGui.QColor(RowColor.WHITE)
